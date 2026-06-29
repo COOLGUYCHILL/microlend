@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MicroLend — Instant Credit for Last-Mile India</title>
+<style>
+/* ── RESET & BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paytm-blue:#00B9F1;
+  --paytm-dark:#002970;
+  --paytm-navy:#001D56;
+  --paytm-deep:#00102B;
+  --paytm-teal:#00D4AA;
+  --paytm-green:#00C853;
+  --paytm-amber:#FFB300;
+  --paytm-red:#FF3D57;
+  --paytm-purple:#7C4DFF;
+  --white:#FFFFFF;
+  --off-white:#F0F6FF;
+  --grey-light:#E8EFF8;
+  --grey-mid:#B0BED0;
+  --text-dark:#001A40;
+  --text-body:#3A5070;
+  --text-muted:#7B92B8;
+  --card-bg:#FFFFFF;
+  --border:#DDE8F5;
+  --screen-bg:#F2F7FF;
+  --success:#00C853;
+  --warn:#FF9100;
+  --danger:#FF3D57;
+  --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px; --r-xl:28px;
+  --shadow-sm:0 2px 8px rgba(0,31,86,0.08);
+  --shadow-md:0 8px 32px rgba(0,31,86,0.12);
+  --shadow-lg:0 24px 64px rgba(0,31,86,0.18);
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--screen-bg);color:var(--text-dark);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--paytm-blue);border-radius:4px}
+
+/* ── APP SHELL (desktop centered phone) ── */
+.app-shell{
+  max-width:420px;margin:0 auto;
+  background:var(--white);
+  min-height:100vh;
+  box-shadow:0 0 80px rgba(0,41,112,0.18);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* Outer page bg */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;
+  background:linear-gradient(145deg,#001D56 0%,#002970 50%,#00102B 100%);
+}
+
+
+/* ── APP SCREENS ── */
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  background:var(--white);
+  border-top:1px solid var(--border);
+  display:flex;
+  padding:.5rem 0 .75rem;
+  flex-shrink:0;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;
+  cursor:pointer;transition:color .2s;color:var(--grey-mid);
+  font-size:.62rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+  padding:.25rem 0;
+}
+.nav-item.active{color:var(--paytm-dark)}
+.nav-icon{font-size:1.3rem;line-height:1}
+.nav-indicator{width:4px;height:4px;border-radius:50%;background:var(--paytm-blue);margin-top:.1rem;opacity:0;transition:opacity .2s}
+.nav-item.active .nav-indicator{opacity:1}
+
+/* ══════════════════════════════════════
+   SCREEN 1 — HOME
+══════════════════════════════════════ */
+.home-header{
+  background:linear-gradient(160deg,var(--paytm-dark) 0%,#003B8E 100%);
+  padding:1.25rem 1.25rem 3.5rem;
+  position:relative;overflow:visible;
+}
+.home-header::after{
+  content:'';position:absolute;bottom:-40px;left:-20px;right:-20px;height:80px;
+  background:var(--white);border-radius:50% 50% 0 0;
+  pointer-events:none;
+}
+/* floating orbs */
+.hh-orb1,.hh-orb2{position:absolute;border-radius:50%;pointer-events:none}
+.hh-orb1{width:200px;height:200px;background:rgba(0,185,241,.08);top:-60px;right:-60px;filter:blur(40px)}
+.hh-orb2{width:150px;height:150px;background:rgba(0,212,170,.06);bottom:20px;left:-40px;filter:blur(30px)}
+
+.hh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;position:relative;z-index:2}
+.hh-greeting{color:rgba(255,255,255,.7);font-size:.8rem;font-weight:500}
+.hh-name{color:var(--white);font-size:1.1rem;font-weight:700;margin-top:.1rem}
+.hh-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--paytm-blue),var(--paytm-teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;border:2px solid rgba(255,255,255,.25);
+}
+.hh-balance-card{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--r-lg);
+  padding:1rem 1.25rem;
+  backdrop-filter:blur(10px);
+  position:relative;z-index:2;
+}
+.hh-balance-label{font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.hh-balance-amount{font-size:2rem;font-weight:800;color:var(--white);letter-spacing:-.03em;line-height:1}
+.hh-balance-sub{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:.25rem;display:flex;align-items:center;gap:.35rem}
+.hh-badge{
+  display:inline-flex;align-items:center;gap:.3rem;
+  background:rgba(0,200,83,.2);border:1px solid rgba(0,200,83,.35);
+  border-radius:100px;padding:.15rem .55rem;font-size:.62rem;font-weight:700;color:#6FFF9A;
+}
+.hh-badge-dot{width:5px;height:5px;border-radius:50%;background:#00C853;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* Quick Actions */
+.quick-actions{
+  padding:0 1.25rem;
+  margin-top:-1.75rem;
+  position:relative;z-index:10;
+}
+.qa-card{
+  background:var(--white);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-md);
+  padding:1.25rem;
+}
+.qa-title{font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.qa-btn{
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  cursor:pointer;transition:transform .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.qa-btn:active{transform:scale(.93)}
+.qa-icon-wrap{
+  width:48px;height:48px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.35rem;
+  transition:box-shadow .2s;
+}
+.qa-icon-wrap.blue{background:linear-gradient(135deg,#E8F6FE,#C5E9F7)}
+.qa-icon-wrap.green{background:linear-gradient(135deg,#E6FAF0,#C2F0D8)}
+.qa-icon-wrap.purple{background:linear-gradient(135deg,#EEE8FF,#D8C9FF)}
+.qa-icon-wrap.amber{background:linear-gradient(135deg,#FFF4E0,#FFE4A0)}
+.qa-label{font-size:.62rem;font-weight:600;color:var(--text-body);text-align:center;line-height:1.3}
+
+/* Score Summary Card */
+.score-summary-section{padding:1rem 1.25rem}
+.section-eyebrow{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.section-eyebrow::before{content:'';width:16px;height:2px;background:var(--paytm-blue);border-radius:2px}
+
+.score-hero-card{
+  background:linear-gradient(135deg,var(--paytm-navy) 0%,#003B8E 100%);
+  border-radius:var(--r-lg);
+  padding:1.25rem;
+  color:var(--white);
+  position:relative;overflow:hidden;
+  cursor:pointer;
+  transition:transform .2s,box-shadow .2s;
+}
+.score-hero-card:active{transform:scale(.98)}
+.shc-glow{position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(0,185,241,.12);filter:blur(20px)}
+.shc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+.shc-label{font-size:.68rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.07em}
+.shc-arrow{font-size:.9rem;color:rgba(255,255,255,.4)}
+.shc-score-row{display:flex;align-items:baseline;gap:.4rem;margin-bottom:.75rem}
+.shc-score-num{font-size:3.2rem;font-weight:800;color:var(--white);letter-spacing:-.04em;line-height:1}
+.shc-score-denom{font-size:1rem;color:rgba(255,255,255,.45);font-weight:400}
+.shc-band{
+  display:inline-flex;align-items:center;gap:.35rem;
+  background:rgba(0,200,83,.18);border:1px solid rgba(0,200,83,.3);
+  border-radius:100px;padding:.3rem .75rem;font-size:.68rem;font-weight:700;color:#6FFF9A;
+}
+.shc-factors{margin-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+.shc-factor-row{display:flex;align-items:center;gap:.6rem}
+.shc-factor-label{font-size:.65rem;color:rgba(255,255,255,.55);width:100px;flex-shrink:0}
+.shc-factor-track{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.shc-factor-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--paytm-blue),var(--paytm-teal));transition:width 1.8s cubic-bezier(.22,1,.36,1)}
+.shc-factor-val{font-size:.6rem;color:var(--paytm-blue);width:24px;text-align:right;font-weight:700}
+
+/* Offers row */
+.offers-section{padding:0 1.25rem 1rem}
+.offer-scroll{display:flex;gap:.75rem;overflow-x:auto;padding-bottom:.5rem;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.offer-scroll::-webkit-scrollbar{display:none}
+.offer-card{
+  flex-shrink:0;width:200px;border-radius:var(--r-md);
+  padding:1rem;position:relative;overflow:hidden;
+  border:1px solid var(--border);background:var(--white);
+  box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .15s;
+}
+.offer-card:active{transform:scale(.97)}
+.oc-chip{
+  display:inline-block;font-size:.58rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;padding:.2rem .55rem;
+  border-radius:100px;margin-bottom:.6rem;
+}
+.oc-blue{background:rgba(0,185,241,.1);color:var(--paytm-dark)}
+.oc-green{background:rgba(0,200,83,.1);color:#006B2D}
+.oc-purple{background:rgba(124,77,255,.1);color:#4A00B0}
+.offer-amount{font-size:1.25rem;font-weight:800;color:var(--text-dark);letter-spacing:-.02em;margin-bottom:.2rem}
+.offer-name{font-size:.72rem;font-weight:600;color:var(--text-body);margin-bottom:.1rem}
+.offer-rate{font-size:.65rem;color:var(--text-muted)}
+.offer-cta{
+  margin-top:.75rem;font-size:.68rem;font-weight:700;
+  color:var(--paytm-dark);display:flex;align-items:center;gap:.25rem;
+}
+.oc-glow{position:absolute;bottom:-20px;right:-20px;width:70px;height:70px;border-radius:50%;opacity:.08}
+.oc-glow.blue{background:var(--paytm-blue)}
+.oc-glow.green{background:var(--paytm-green)}
+.oc-glow.purple{background:var(--paytm-purple)}
+
+/* ══════════════════════════════════════
+   SCREEN 2 — CHECK ELIGIBILITY (LOAN CHECKER)
+══════════════════════════════════════ */
+.checker-header{
+  background:linear-gradient(160deg,var(--paytm-dark),#003B8E);
+  padding:1.25rem 1.25rem 1.5rem;
+  display:flex;align-items:center;gap:.9rem;
+}
+.back-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.12);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;color:var(--white);
+  transition:background .2s;flex-shrink:0;
+}
+.back-btn:active{background:rgba(255,255,255,.2)}
+.checker-header-text{}
+.checker-header-title{font-size:1rem;font-weight:700;color:var(--white)}
+.checker-header-sub{font-size:.7rem;color:rgba(255,255,255,.6);margin-top:.1rem}
+
+/* Progress bar */
+.progress-wrap{background:var(--paytm-dark);padding:.75rem 1.25rem}
+.progress-steps{display:flex;gap:.4rem;align-items:center}
+.prog-step{
+  flex:1;height:3px;border-radius:2px;
+  background:rgba(255,255,255,.15);
+  transition:background .3s;
+}
+.prog-step.done{background:var(--paytm-blue)}
+.prog-step.active{background:var(--paytm-teal)}
+.progress-label{font-size:.65rem;color:rgba(255,255,255,.5);margin-top:.4rem;text-align:center}
+
+/* Form body */
+.checker-body{flex:1;overflow-y:auto;padding:1.25rem}
+.form-step{display:none}
+.form-step.active{display:block}
+
+.form-card{
+  background:var(--white);border-radius:var(--r-lg);
+  padding:1.25rem;box-shadow:var(--shadow-sm);
+  border:1px solid var(--border);margin-bottom:1rem;
+}
+.fc-head{display:flex;align-items:center;gap:.65rem;margin-bottom:1.25rem}
+.fc-icon{
+  width:40px;height:40px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;
+}
+.fc-icon.blue{background:linear-gradient(135deg,#E8F6FE,#C5E9F7)}
+.fc-icon.green{background:linear-gradient(135deg,#E6FAF0,#C2F0D8)}
+.fc-icon.amber{background:linear-gradient(135deg,#FFF4E0,#FFE4A0)}
+.fc-title{font-size:.95rem;font-weight:700;color:var(--text-dark)}
+.fc-sub{font-size:.7rem;color:var(--text-muted);margin-top:.1rem}
+
+.field-group{margin-bottom:1rem}
+.field-label{font-size:.72rem;font-weight:700;color:var(--text-body);margin-bottom:.4rem;display:block;letter-spacing:.01em}
+.field-input,.field-select{
+  width:100%;padding:.7rem .9rem;
+  border:1.5px solid var(--border);border-radius:var(--r-sm);
+  font-size:.88rem;color:var(--text-dark);background:var(--white);
+  transition:border-color .2s,box-shadow .2s;outline:none;
+  font-family:inherit;
+}
+.field-input:focus,.field-select:focus{
+  border-color:var(--paytm-blue);
+  box-shadow:0 0 0 3px rgba(0,185,241,.12);
+}
+.field-hint{font-size:.65rem;color:var(--text-muted);margin-top:.3rem}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+
+/* Radio pills */
+.pill-group{display:flex;flex-direction:column;gap:.5rem}
+.pill-option{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.65rem .9rem;border-radius:var(--r-sm);
+  border:1.5px solid var(--border);cursor:pointer;
+  transition:all .15s;background:var(--white);
+}
+.pill-option:active{transform:scale(.98)}
+.pill-option.selected{
+  border-color:var(--paytm-blue);background:rgba(0,185,241,.05);
+}
+.pill-radio{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:border-color .15s;
+}
+.pill-option.selected .pill-radio{border-color:var(--paytm-blue)}
+.pill-radio-dot{width:8px;height:8px;border-radius:50%;background:var(--paytm-blue);opacity:0;transition:opacity .15s}
+.pill-option.selected .pill-radio-dot{opacity:1}
+.pill-text{font-size:.82rem;font-weight:600;color:var(--text-dark)}
+.pill-sub{font-size:.67rem;color:var(--text-muted);margin-top:.05rem}
+
+/* Rupee input */
+.rupee-input-wrap{position:relative}
+.rupee-prefix{
+  position:absolute;left:.9rem;top:50%;transform:translateY(-50%);
+  font-size:.88rem;font-weight:700;color:var(--text-muted);
+}
+.rupee-input-wrap .field-input{padding-left:1.75rem}
+
+/* Step nav buttons */
+.step-nav{
+  padding:1rem 1.25rem;background:var(--white);
+  border-top:1px solid var(--border);flex-shrink:0;
+  display:flex;gap:.75rem;
+}
+.btn-next{
+  flex:1;padding:.85rem;border:none;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--paytm-dark),#003B8E);
+  color:var(--white);font-size:.9rem;font-weight:700;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;
+  font-family:inherit;
+}
+.btn-next:active{transform:scale(.97)}
+.btn-next:disabled{opacity:.5;cursor:not-allowed}
+.btn-back-step{
+  padding:.85rem 1.25rem;border:1.5px solid var(--border);border-radius:var(--r-md);
+  background:transparent;color:var(--text-body);font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.btn-back-step:active{transform:scale(.97)}
+
+/* Loading screen */
+.loading-screen{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;gap:1.5rem;background:var(--white);
+}
+.loading-orb{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,var(--paytm-blue),var(--paytm-teal));
+  display:flex;align-items:center;justify-content:center;font-size:2rem;
+  animation:orb-pulse 2s ease-in-out infinite;
+  box-shadow:0 0 0 0 rgba(0,185,241,.4);
+}
+@keyframes orb-pulse{
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,185,241,.4)}
+  70%{transform:scale(1.05);box-shadow:0 0 0 20px rgba(0,185,241,0)}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,185,241,0)}
+}
+.loading-title{font-size:1.1rem;font-weight:700;color:var(--text-dark);text-align:center}
+.loading-msg{font-size:.82rem;color:var(--text-muted);text-align:center;min-height:1.2em;transition:opacity .3s}
+.loading-progress{width:100%;max-width:240px;height:4px;background:var(--grey-light);border-radius:2px;overflow:hidden}
+.loading-progress-fill{height:100%;background:linear-gradient(90deg,var(--paytm-blue),var(--paytm-teal));border-radius:2px;transition:width 0.7s ease;width:0%}
+.loading-steps{display:flex;flex-direction:column;gap:.5rem;width:100%;max-width:280px}
+.ls-step{display:flex;align-items:center;gap:.65rem;font-size:.78rem;color:var(--text-muted);transition:color .3s}
+.ls-step.done{color:var(--paytm-green)}
+.ls-step.active-step{color:var(--paytm-dark);font-weight:600}
+.ls-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .3s;flex-shrink:0}
+.ls-step.done .ls-check{background:var(--paytm-green);border-color:var(--paytm-green);color:white}
+.ls-step.active-step .ls-check{background:var(--paytm-blue);border-color:var(--paytm-blue);color:white;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESULT SCREEN ── */
+.result-screen{flex:1;overflow-y:auto;background:var(--screen-bg)}
+.result-header-bar{
+  background:linear-gradient(160deg,var(--paytm-dark),#003B8E);
+  padding:1.25rem 1.25rem 3rem;
+  position:relative;overflow:hidden;
+}
+.rhb-back{
+  display:flex;align-items:center;gap:.5rem;
+  color:rgba(255,255,255,.7);font-size:.78rem;cursor:pointer;
+  margin-bottom:1rem;
+  background:none;border:none;font-family:inherit;
+}
+.rhb-back:active{color:var(--white)}
+.rhb-title{font-size:1rem;font-weight:700;color:var(--white)}
+.rhb-sub{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:.15rem}
+.rhb-orb{position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(0,185,241,.06);filter:blur(30px)}
+
+.result-body{padding:0 1rem 1.5rem;margin-top:-1.75rem;position:relative;z-index:2}
+
+/* Score card */
+.result-score-card{
+  background:var(--white);border-radius:var(--r-xl);
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;margin-bottom:.9rem;
+}
+.rsc-top{
+  background:linear-gradient(135deg,var(--paytm-navy),#002060);
+  padding:1.5rem;display:flex;align-items:center;gap:1rem;
+}
+.rsc-score-circle{
+  width:72px;height:72px;border-radius:50%;flex-shrink:0;
+  border:3px solid rgba(255,255,255,.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.1);
+}
+.rsc-score-num{font-size:1.6rem;font-weight:800;color:var(--white);line-height:1;letter-spacing:-.04em}
+.rsc-score-sub{font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em}
+.rsc-info{}
+.rsc-name{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:.2rem}
+.rsc-meta{font-size:.7rem;color:rgba(255,255,255,.5)}
+.verdict-banner{
+  padding:1rem 1.25rem;display:flex;align-items:center;gap:.9rem;
+}
+.vb-icon{font-size:2rem;flex-shrink:0}
+.vb-title{font-size:.95rem;font-weight:700}
+.vb-body{font-size:.75rem;color:var(--text-body);margin-top:.2rem;line-height:1.55}
+.approved .vb-title{color:var(--paytm-green)}
+.conditional .vb-title{color:var(--warn)}
+.declined .vb-title{color:var(--danger)}
+
+/* Amount approved */
+.amount-card{
+  background:var(--white);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);padding:1.25rem;
+  margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--border);
+}
+.ac-label{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.25rem}
+.ac-amount{font-size:1.9rem;font-weight:800;color:var(--paytm-dark);letter-spacing:-.04em;line-height:1}
+.ac-note{font-size:.65rem;color:var(--text-muted);margin-top:.2rem}
+.ac-apply-btn{
+  background:linear-gradient(135deg,var(--paytm-dark),#003B8E);
+  color:var(--white);border:none;border-radius:var(--r-sm);
+  padding:.6rem 1.1rem;font-size:.78rem;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:transform .15s;white-space:nowrap;flex-shrink:0;
+}
+.ac-apply-btn:active{transform:scale(.95)}
+
+/* SHAP factors */
+.factors-card{
+  background:var(--white);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);padding:1.25rem;
+  margin-bottom:.9rem;border:1px solid var(--border);
+}
+.fc-section-title{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.fc-section-title::before{content:'';width:12px;height:2px;background:var(--paytm-blue);border-radius:2px}
+.factor-row{margin-bottom:.75rem}
+.factor-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.factor-name{font-size:.78rem;font-weight:600;color:var(--text-dark)}
+.factor-score-badge{
+  font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:100px;
+}
+.positive .factor-score-badge{background:rgba(0,200,83,.1);color:#006B2D}
+.neutral .factor-score-badge{background:rgba(255,145,0,.1);color:#A05000}
+.negative .factor-score-badge{background:rgba(255,61,87,.1);color:#9B0020}
+.factor-bar-wrap{height:6px;background:var(--grey-light);border-radius:3px;overflow:hidden}
+.factor-bar-fill{height:100%;border-radius:3px;transition:width 1.5s cubic-bezier(.22,1,.36,1)}
+.positive .factor-bar-fill{background:linear-gradient(90deg,var(--paytm-teal),var(--paytm-green))}
+.neutral .factor-bar-fill{background:linear-gradient(90deg,#FF9100,#FFB300)}
+.negative .factor-bar-fill{background:linear-gradient(90deg,#FF3D57,#FF6B6B)}
+
+/* Lenders */
+.lenders-card{
+  background:var(--white);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);padding:1.25rem;
+  margin-bottom:.9rem;border:1px solid var(--border);
+}
+.lender-item{
+  display:flex;align-items:center;gap:.9rem;
+  padding:.9rem 0;border-bottom:1px solid var(--grey-light);
+}
+.lender-item:last-child{border-bottom:none;padding-bottom:0}
+.li-logo{
+  width:42px;height:42px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;flex-shrink:0;background:var(--grey-light);
+}
+.li-info{flex:1}
+.li-name{font-size:.85rem;font-weight:700;color:var(--text-dark)}
+.li-type{font-size:.65rem;color:var(--text-muted);margin-top:.1rem}
+.li-right{text-align:right;flex-shrink:0}
+.li-rate{font-size:.8rem;font-weight:700;color:var(--paytm-dark)}
+.li-max{font-size:.65rem;color:var(--text-muted);margin-top:.1rem}
+
+/* Tip card */
+.tip-card{
+  background:linear-gradient(135deg,#FFF8E7,#FFF3D0);
+  border:1px solid rgba(255,179,0,.25);
+  border-radius:var(--r-lg);padding:1rem 1.25rem;
+  margin-bottom:.9rem;display:flex;gap:.75rem;align-items:flex-start;
+}
+.tip-icon{font-size:1.3rem;flex-shrink:0;margin-top:.1rem}
+.tip-label{font-size:.65rem;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.3rem}
+.tip-text{font-size:.78rem;color:var(--text-body);line-height:1.55}
+
+/* Disclaimer */
+.disclaimer{font-size:.65rem;color:var(--text-muted);text-align:center;padding:0 1rem 1rem;line-height:1.6}
+
+/* ══════════════════════════════════════
+   SCREEN 3 — HOW IT WORKS
+══════════════════════════════════════ */
+.hiw-header{
+  background:linear-gradient(160deg,var(--paytm-dark),#003B8E);
+  padding:1.25rem 1.25rem 1.5rem;
+}
+.hiw-title{font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:.15rem}
+.hiw-sub{font-size:.73rem;color:rgba(255,255,255,.55)}
+
+.hiw-body{flex:1;overflow-y:auto;padding:1.25rem}
+
+.hiw-problem-card{
+  background:linear-gradient(135deg,#1A0A00,#2E1500);
+  border-radius:var(--r-lg);padding:1.25rem;margin-bottom:1rem;
+  border:1px solid rgba(255,61,87,.15);
+  position:relative;overflow:hidden;
+}
+.hiw-problem-card::before{content:'📊';position:absolute;right:1rem;top:1rem;font-size:2.5rem;opacity:.15}
+.hiw-pc-label{font-size:.62rem;font-weight:700;color:#FF6B80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+.hiw-pc-stat{font-size:1.8rem;font-weight:800;color:var(--white);letter-spacing:-.03em;line-height:1;margin-bottom:.25rem}
+.hiw-pc-desc{font-size:.78rem;color:rgba(255,255,255,.55);line-height:1.55}
+
+.hiw-stats-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
+.hiw-stat-card{
+  background:var(--white);border-radius:var(--r-md);padding:1rem;
+  border:1px solid var(--border);box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;gap:.25rem;
+}
+.hsc-num{font-size:1.4rem;font-weight:800;color:var(--paytm-dark);letter-spacing:-.03em;line-height:1}
+.hsc-label{font-size:.65rem;color:var(--text-muted);line-height:1.4}
+
+.hiw-pipeline{margin-bottom:1rem}
+.pipeline-step-card{
+  display:flex;gap:.9rem;
+  background:var(--white);border-radius:var(--r-md);
+  padding:1rem;margin-bottom:.6rem;
+  border:1px solid var(--border);box-shadow:var(--shadow-sm);
+  position:relative;
+}
+.psc-num{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--paytm-dark),#003B8E);
+  color:var(--white);font-size:.78rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.psc-title{font-size:.88rem;font-weight:700;color:var(--text-dark);margin-bottom:.25rem}
+.psc-desc{font-size:.75rem;color:var(--text-body);line-height:1.55}
+.psc-tag{display:inline-block;margin-top:.4rem;font-size:.6rem;font-weight:700;color:var(--paytm-blue);background:rgba(0,185,241,.08);border:1px solid rgba(0,185,241,.2);padding:.15rem .5rem;border-radius:100px;letter-spacing:.05em}
+
+.models-grid{display:flex;flex-direction:column;gap:.6rem}
+.model-card{
+  background:var(--white);border-radius:var(--r-md);padding:1rem;
+  border:1px solid var(--border);box-shadow:var(--shadow-sm);
+  display:flex;gap:.75rem;
+}
+.mc-icon{font-size:1.4rem;flex-shrink:0}
+.mc-tag{display:inline-block;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.15rem .5rem;border-radius:100px;border:1px solid var(--border);color:var(--text-muted);margin-bottom:.3rem}
+.mc-name{font-size:.88rem;font-weight:700;color:var(--text-dark);margin-bottom:.25rem}
+.mc-desc{font-size:.72rem;color:var(--text-body);line-height:1.5}
+.mc-example{display:block;margin-top:.5rem;font-size:.65rem;color:var(--paytm-blue);font-style:italic}
+
+/* ══════════════════════════════════════
+   SCREEN 4 — PROFILE / ML EXPLAINER
+══════════════════════════════════════ */
+.profile-header{
+  background:linear-gradient(160deg,var(--paytm-dark),#003B8E);
+  padding:1.5rem 1.25rem 2.5rem;
+}
+.ph-avatar{
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,var(--paytm-blue),var(--paytm-teal));
+  margin:0 auto .75rem;display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;border:3px solid rgba(255,255,255,.2);
+}
+.ph-name{font-size:1.1rem;font-weight:700;color:var(--white);text-align:center}
+.ph-sub{font-size:.75rem;color:rgba(255,255,255,.5);text-align:center;margin-top:.25rem}
+
+.profile-body{flex:1;overflow-y:auto;padding:1.25rem;margin-top:-1rem;position:relative;z-index:2}
+
+.ml-explainer-card{
+  background:var(--white);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-md);padding:1.25rem;margin-bottom:.9rem;
+  border:1px solid var(--border);
+}
+.mec-title{font-size:.88rem;font-weight:700;color:var(--text-dark);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.mec-title-icon{width:30px;height:30px;border-radius:var(--r-xs);background:linear-gradient(135deg,#E8F6FE,#C5E9F7);display:flex;align-items:center;justify-content:center;font-size:.9rem}
+
+.tech-pill-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}
+.tech-pill{display:inline-flex;align-items:center;gap:.25rem;font-size:.68rem;font-weight:600;color:var(--paytm-dark);background:rgba(0,41,112,.06);border:1px solid rgba(0,41,112,.1);border-radius:100px;padding:.3rem .7rem}
+
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--grey-light)}
+.metric-row:last-child{border-bottom:none;padding-bottom:0}
+.mr-label{font-size:.78rem;color:var(--text-body)}
+.mr-val{font-size:.82rem;font-weight:700;color:var(--paytm-dark)}
+.mr-val.highlight{color:var(--paytm-blue)}
+
+/* ── ANIMATIONS & UTILS ── */
+.fade-in{animation:fadeIn .35s ease-out both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.animate-score{animation:scoreCount 1.5s ease-out both}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:3rem 2rem;text-align:center;gap:1rem;
+  flex:1;
+}
+.es-icon{font-size:3rem}
+.es-title{font-size:1rem;font-weight:700;color:var(--text-dark)}
+.es-sub{font-size:.8rem;color:var(--text-muted);line-height:1.6}
+.es-btn{
+  margin-top:.5rem;padding:.7rem 1.5rem;
+  background:linear-gradient(135deg,var(--paytm-dark),#003B8E);
+  color:var(--white);border:none;border-radius:var(--r-md);
+  font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;
+}
+
+/* Alert / validation */
+.field-error{font-size:.68rem;color:var(--danger);margin-top:.3rem;display:none}
+.field-input.error,.field-select.error{border-color:var(--danger)}
+
+/* Scrollable form */
+.checker-body{-webkit-overflow-scrolling:touch}
+
+/* Responsive: on wider screens, show phone-style */
+@media(min-width:480px){
+  .app-shell{border-radius:32px;margin:20px auto;min-height:calc(100vh - 40px)}
+}
+
+/* ── PAYTM-STYLE SERVICE ICON TILES ── */
+.service-section{padding:.75rem 1.25rem 0}
+.service-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem}
+.svc-tile{
+  display:flex;flex-direction:column;align-items:center;gap:.35rem;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.svc-tile:active .svc-icon-box{transform:scale(.9)}
+.svc-icon-box{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;transition:transform .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+.svc-icon-box.ic-blue  {background:linear-gradient(135deg,#1A78FF,#00AAFF)}
+.svc-icon-box.ic-green {background:linear-gradient(135deg,#00C853,#00E676)}
+.svc-icon-box.ic-purple{background:linear-gradient(135deg,#7C4DFF,#B47CFF)}
+.svc-icon-box.ic-amber {background:linear-gradient(135deg,#FF8F00,#FFB300)}
+.svc-icon-box.ic-teal  {background:linear-gradient(135deg,#00897B,#00BFA5)}
+.svc-icon-box.ic-red   {background:linear-gradient(135deg,#E53935,#FF5252)}
+.svc-icon-box.ic-indigo{background:linear-gradient(135deg,#3949AB,#5C6BC0)}
+.svc-icon-box.ic-pink  {background:linear-gradient(135deg,#D81B60,#F06292)}
+.svc-label{font-size:.6rem;font-weight:600;color:var(--text-body);text-align:center;line-height:1.3}
+
+/* ── USER QUOTE CARD ── */
+.quote-card{
+  margin:0 1.25rem .9rem;
+  background:linear-gradient(135deg,#001840,#002B6B);
+  border-radius:var(--r-lg);padding:1.1rem 1.25rem;
+  border:1px solid rgba(0,185,241,.15);position:relative;overflow:hidden;
+}
+.quote-card::before{content:'"';position:absolute;top:-.3rem;left:.8rem;font-size:5rem;color:rgba(0,185,241,.1);font-family:Georgia,serif;line-height:1}
+.qc-text{font-size:.78rem;color:rgba(255,255,255,.8);line-height:1.65;font-style:italic;position:relative;z-index:1;margin-bottom:.75rem}
+.qc-person{display:flex;align-items:center;gap:.65rem}
+.qc-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--paytm-blue),var(--paytm-teal));display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.qc-name{font-size:.72rem;font-weight:700;color:var(--white)}
+.qc-role{font-size:.62rem;color:rgba(255,255,255,.45);margin-top:.05rem}
+.qc-badge{display:inline-block;margin-top:.4rem;font-size:.55rem;font-weight:700;color:rgba(255,185,0,.8);background:rgba(255,185,0,.1);border:1px solid rgba(255,185,0,.2);border-radius:100px;padding:.1rem .45rem;letter-spacing:.05em}
+
+/* ── EMI CALCULATOR (on result page) ── */
+.emi-card{
+  background:linear-gradient(135deg,#F0FAFF,#E4F4FF);
+  border:1px solid rgba(0,185,241,.2);
+  border-radius:var(--r-lg);padding:1.25rem;
+  margin-bottom:.9rem;
+}
+.emi-title{font-size:.72rem;font-weight:700;color:var(--paytm-dark);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.9rem;display:flex;align-items:center;gap:.4rem}
+.emi-title::before{content:'';width:12px;height:2px;background:var(--paytm-blue);border-radius:2px}
+.emi-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.emi-row-label{font-size:.72rem;color:var(--text-body);width:90px;flex-shrink:0}
+.emi-slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--grey-light);outline:none}
+.emi-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--paytm-dark);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.emi-val{font-size:.72rem;font-weight:700;color:var(--paytm-dark);width:50px;text-align:right}
+.emi-result-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-top:.75rem}
+.emi-stat{background:var(--white);border-radius:var(--r-sm);padding:.75rem .5rem;text-align:center;border:1px solid var(--border)}
+.emi-stat-num{font-size:.85rem;font-weight:800;color:var(--paytm-dark);letter-spacing:-.02em}
+.emi-stat-label{font-size:.58rem;color:var(--text-muted);margin-top:.2rem}
+
+/* ── HISTORY SCREEN ── */
+.history-header{
+  background:linear-gradient(160deg,var(--paytm-dark),#003B8E);
+  padding:1.25rem 1.25rem 1.5rem;
+}
+.history-header-title{font-size:1.1rem;font-weight:700;color:var(--white)}
+.history-header-sub{font-size:.73rem;color:rgba(255,255,255,.55);margin-top:.1rem}
+.history-body{flex:1;overflow-y:auto;padding:1.25rem}
+.hist-card{
+  background:var(--white);border-radius:var(--r-md);
+  border:1px solid var(--border);box-shadow:var(--shadow-sm);
+  padding:1rem;margin-bottom:.65rem;
+  display:flex;align-items:center;gap:.9rem;
+  cursor:pointer;transition:transform .15s;
+}
+.hist-card:active{transform:scale(.98)}
+.hist-score-badge{
+  width:48px;height:48px;border-radius:var(--r-sm);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex-shrink:0;font-weight:800;font-size:1.1rem;line-height:1;
+}
+.hist-score-badge.good{background:rgba(0,200,83,.1);color:var(--paytm-green)}
+.hist-score-badge.mid {background:rgba(255,145,0,.1);color:var(--warn)}
+.hist-score-badge.bad {background:rgba(255,61,87,.1);color:var(--danger)}
+.hist-score-denom{font-size:.5rem;font-weight:400;color:var(--text-muted)}
+.hist-info{flex:1;min-width:0}
+.hist-name{font-size:.88rem;font-weight:700;color:var(--text-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-meta{font-size:.65rem;color:var(--text-muted);margin-top:.15rem}
+.hist-right{text-align:right;flex-shrink:0}
+.hist-verdict{font-size:.65rem;font-weight:700;border-radius:100px;padding:.2rem .6rem}
+.hist-verdict.ap{background:rgba(0,200,83,.1);color:#006B2D}
+.hist-verdict.co{background:rgba(255,145,0,.1);color:#A05000}
+.hist-verdict.de{background:rgba(255,61,87,.1);color:#9B0020}
+.hist-amount{font-size:.7rem;color:var(--text-muted);margin-top:.25rem}
+.hist-loading{text-align:center;padding:2rem;color:var(--text-muted);font-size:.82rem}
+</style>
+</head>
+<body>
+
+<div class="app-shell" id="app">
+
+
+  <!-- ══ SCREEN: HOME ══ -->
+  <div class="screen active" id="screen-home">
+    <div style="overflow-y:auto;flex:1">
+
+      <!-- Header -->
+      <div class="home-header">
+        <div class="hh-orb1"></div><div class="hh-orb2"></div>
+        <div class="hh-top">
+          <div class="hh-greeting-wrap">
+            <div class="hh-greeting" style="font-size:.72rem;color:rgba(255,255,255,.6);font-weight:500">MicroLend</div>
+            <div class="hh-name" style="font-size:1rem;font-weight:700;color:var(--white);line-height:1.25">Micro-credit Lending for<br/>Last-mile Businesses</div>
+          </div>
+          <div class="hh-avatar">🏪</div>
+        </div>
+        <div class="hh-balance-card">
+          <div class="hh-balance-label">Pre-approved Limit</div>
+          <div class="hh-balance-amount">₹80,000</div>
+          <div class="hh-balance-sub">
+            <div class="hh-badge"><div class="hh-badge-dot"></div>ML Verified</div>
+            <span style="color:rgba(255,255,255,.35)">·</span>
+            <span>No ITR required</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <div class="qa-card">
+          <div class="qa-title">Quick Actions</div>
+          <div class="qa-grid">
+            <div class="qa-btn" onclick="showChecker()">
+              <div class="qa-icon-wrap blue">⚡</div>
+              <div class="qa-label">Check Eligibility</div>
+            </div>
+            <div class="qa-btn" onclick="switchNav('hiw')">
+              <div class="qa-icon-wrap green">🔍</div>
+              <div class="qa-label">How It Works</div>
+            </div>
+            <div class="qa-btn" onclick="switchNav('profile')">
+              <div class="qa-icon-wrap purple">📊</div>
+              <div class="qa-label">ML Insights</div>
+            </div>
+            <div class="qa-btn" onclick="scrollToOffers()">
+              <div class="qa-icon-wrap amber">💰</div>
+              <div class="qa-label">Loan Offers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paytm-style Service Tiles -->
+      <div class="service-section">
+        <div class="section-eyebrow" style="padding:0;margin-bottom:.75rem">Our Services</div>
+        <div class="service-grid">
+          <div class="svc-tile" onclick="showChecker()">
+            <div class="svc-icon-box ic-blue">⚡</div>
+            <div class="svc-label">Check Score</div>
+          </div>
+          <div class="svc-tile" onclick="switchNav('history')">
+            <div class="svc-icon-box ic-green">📋</div>
+            <div class="svc-label">My History</div>
+          </div>
+          <div class="svc-tile" onclick="switchNav('profile')">
+            <div class="svc-icon-box ic-amber">🧠</div>
+            <div class="svc-label">ML Insights</div>
+          </div>
+          <div class="svc-tile" onclick="scrollToOffers()">
+            <div class="svc-icon-box ic-teal">💰</div>
+            <div class="svc-label">Loan Offers</div>
+          </div>
+          <div class="svc-tile" onclick="switchNav('hiw')">
+            <div class="svc-icon-box ic-indigo">🏦</div>
+            <div class="svc-label">Lenders</div>
+          </div>
+          <div class="svc-tile" onclick="switchNav('hiw')">
+            <div class="svc-icon-box ic-purple">📊</div>
+            <div class="svc-label">SHAP Score</div>
+          </div>
+          <div class="svc-tile" onclick="switchNav('hiw')">
+            <div class="svc-icon-box ic-red">❓</div>
+            <div class="svc-label">How It Works</div>
+          </div>
+          <div class="svc-tile" onclick="showChecker()">
+            <div class="svc-icon-box ic-pink">🤝</div>
+            <div class="svc-label">Apply Now</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score Summary -->
+      <div class="score-summary-section">
+        <div class="section-eyebrow">Your Credit Score</div>
+        <div class="score-hero-card" onclick="showChecker()">
+          <div class="shc-glow"></div>
+          <div class="shc-top">
+            <div>
+              <div class="shc-label">MicroLend Score</div>
+            </div>
+            <div class="shc-arrow">→</div>
+          </div>
+          <div class="shc-score-row">
+            <div class="shc-score-num" id="homeScore">0</div>
+            <div class="shc-score-denom">/100</div>
+          </div>
+          <div class="shc-band"><span style="width:6px;height:6px;border-radius:50%;background:#6FFF9A;display:inline-block"></span> LOW RISK · APPROVED</div>
+          <div class="shc-factors">
+            <div class="shc-factor-row">
+              <span class="shc-factor-label">UPI Consistency</span>
+              <div class="shc-factor-track"><div class="shc-factor-fill" data-w="88" style="width:0%"></div></div>
+              <span class="shc-factor-val">88</span>
+            </div>
+            <div class="shc-factor-row">
+              <span class="shc-factor-label">Bill Payments</span>
+              <div class="shc-factor-track"><div class="shc-factor-fill" data-w="92" style="width:0%"></div></div>
+              <span class="shc-factor-val">92</span>
+            </div>
+            <div class="shc-factor-row">
+              <span class="shc-factor-label">Business Vintage</span>
+              <div class="shc-factor-track"><div class="shc-factor-fill" data-w="75" style="width:0%"></div></div>
+              <span class="shc-factor-val">75</span>
+            </div>
+            <div class="shc-factor-row">
+              <span class="shc-factor-label">Supplier Repay</span>
+              <div class="shc-factor-track"><div class="shc-factor-fill" data-w="82" style="width:0%"></div></div>
+              <span class="shc-factor-val">82</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loan Offers -->
+      <div class="offers-section">
+        <div class="section-eyebrow">Recommended Offers</div>
+        <div class="offer-scroll">
+          <div class="offer-card" onclick="showChecker()">
+            <div class="oc-glow blue"></div>
+            <div class="oc-chip oc-blue">Bandhan Bank · SFB</div>
+            <div class="offer-amount">₹80,000</div>
+            <div class="offer-name">Micro Business Loan</div>
+            <div class="offer-rate">From 10.9% p.a. · 12 months</div>
+            <div class="offer-cta">Apply Now →</div>
+          </div>
+          <div class="offer-card" onclick="showChecker()">
+            <div class="oc-glow green"></div>
+            <div class="oc-chip oc-green">Mudra Kishore · Govt</div>
+            <div class="offer-amount">₹50,000</div>
+            <div class="offer-name">PM Mudra Yojana</div>
+            <div class="offer-rate">From 8.5% p.a. · 36 months</div>
+            <div class="offer-cta">Apply Now →</div>
+          </div>
+          <div class="offer-card" onclick="showChecker()">
+            <div class="oc-glow purple"></div>
+            <div class="oc-chip oc-purple">Lendingkart · NBFC</div>
+            <div class="offer-amount">₹1,00,000</div>
+            <div class="offer-name">Digital Biz Credit</div>
+            <div class="offer-rate">From 14% p.a. · 24 months</div>
+            <div class="offer-cta">Apply Now →</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1rem"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: CHECKER ══ -->
+  <div class="screen" id="screen-checker">
+    <div class="checker-header">
+      <button class="back-btn" onclick="backFromChecker()">←</button>
+      <div class="checker-header-text">
+        <div class="checker-header-title">Check Loan Eligibility</div>
+        <div class="checker-header-sub">ML-powered · No ITR · No collateral</div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-steps" id="progressSteps">
+        <div class="prog-step active" id="ps1"></div>
+        <div class="prog-step" id="ps2"></div>
+        <div class="prog-step" id="ps3"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">Step 1 of 3 — Business Info</div>
+    </div>
+
+    <!-- Form body -->
+    <div class="checker-body" id="checkerBody">
+
+      <!-- STEP 1: Business Info -->
+      <div class="form-step active" id="step1">
+        <div class="form-card fade-in">
+          <div class="fc-head">
+            <div class="fc-icon blue">🏪</div>
+            <div>
+              <div class="fc-title">Business Details</div>
+              <div class="fc-sub">Basic info about your shop</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Your Full Name</label>
+            <input class="field-input" id="cl-name" type="text" placeholder="e.g. Ravi Kumar"/>
+            <div class="field-error" id="err-name">Please enter your name</div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Business Type</label>
+              <select class="field-select" id="cl-biztype">
+                <option value="">Select</option>
+                <option>Kirana / General Store</option>
+                <option>Medical / Pharmacy</option>
+                <option>Bakery / Food Stall</option>
+                <option>Tea Stall / Chai Shop</option>
+                <option>Mobile Repair Shop</option>
+                <option>Hardware Store</option>
+                <option>Dairy / Milk Shop</option>
+                <option>Tailoring / Textile</option>
+                <option>Salon / Parlour</option>
+                <option>Agri-input Dealer</option>
+                <option>Vegetable / Fruit Vendor</option>
+                <option>Other Micro-business</option>
+              </select>
+              <div class="field-error" id="err-biztype">Select business type</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">City / Town</label>
+              <input class="field-input" id="cl-city" type="text" placeholder="e.g. Davangere"/>
+              <div class="field-error" id="err-city">Enter city name</div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Business Age (yrs)</label>
+              <input class="field-input" id="cl-age" type="number" min="0" max="50" placeholder="e.g. 5"/>
+              <div class="field-error" id="err-age">Enter years</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Daily UPI Sales (₹)</label>
+              <input class="field-input" id="cl-upi" type="number" placeholder="e.g. 4500"/>
+              <div class="field-hint">Avg daily UPI receipts</div>
+              <div class="field-error" id="err-upi">Enter UPI sales</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Financial Signals -->
+      <div class="form-step" id="step2">
+        <div class="form-card fade-in">
+          <div class="fc-head">
+            <div class="fc-icon green">📋</div>
+            <div>
+              <div class="fc-title">Financial Signals</div>
+              <div class="fc-sub">How you pay bills & suppliers</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Utility Bills Payment Record</label>
+            <div class="pill-group" id="bills-group">
+              <div class="pill-option" data-val="Always on time" onclick="selectPill(this,'bills-group','cl-bills')">
+                <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+                <div>
+                  <div class="pill-text">Always on time</div>
+                  <div class="pill-sub">All bills paid before due date every month</div>
+                </div>
+              </div>
+              <div class="pill-option" data-val="Mostly on time (1–2 late/year)" onclick="selectPill(this,'bills-group','cl-bills')">
+                <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+                <div>
+                  <div class="pill-text">Mostly on time</div>
+                  <div class="pill-sub">Rarely late — 1 or 2 times a year at most</div>
+                </div>
+              </div>
+              <div class="pill-option" data-val="Sometimes late" onclick="selectPill(this,'bills-group','cl-bills')">
+                <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+                <div>
+                  <div class="pill-text">Sometimes late</div>
+                  <div class="pill-sub">Occasional delays, 3–5 times a year</div>
+                </div>
+              </div>
+              <div class="pill-option" data-val="Frequently late" onclick="selectPill(this,'bills-group','cl-bills')">
+                <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+                <div>
+                  <div class="pill-text">Frequently late</div>
+                  <div class="pill-sub">Often delayed — more than 5 times a year</div>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="cl-bills"/>
+            <div class="field-error" id="err-bills">Please select an option</div>
+          </div>
+        </div>
+
+        <div class="form-card fade-in">
+          <div class="fc-head">
+            <div class="fc-icon amber">🤝</div>
+            <div>
+              <div class="fc-title">Supplier Repayment</div>
+              <div class="fc-sub">How you pay your wholesale suppliers</div>
+            </div>
+          </div>
+          <div class="pill-group" id="supplier-group">
+            <div class="pill-option" data-val="Excellent — never delayed" onclick="selectPill(this,'supplier-group','cl-supplier')">
+              <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+              <div>
+                <div class="pill-text">Excellent</div>
+                <div class="pill-sub">Never delayed a supplier payment</div>
+              </div>
+            </div>
+            <div class="pill-option" data-val="Good — rarely delayed" onclick="selectPill(this,'supplier-group','cl-supplier')">
+              <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+              <div>
+                <div class="pill-text">Good</div>
+                <div class="pill-sub">Rarely delayed — strong supplier relationship</div>
+              </div>
+            </div>
+            <div class="pill-option" data-val="Average — sometimes delayed" onclick="selectPill(this,'supplier-group','cl-supplier')">
+              <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+              <div>
+                <div class="pill-text">Average</div>
+                <div class="pill-sub">Occasional delays due to cash flow</div>
+              </div>
+            </div>
+            <div class="pill-option" data-val="Poor — frequent delays" onclick="selectPill(this,'supplier-group','cl-supplier')">
+              <div class="pill-radio"><div class="pill-radio-dot"></div></div>
+              <div>
+                <div class="pill-text">Poor</div>
+                <div class="pill-sub">Frequent delays, some disputes</div>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="cl-supplier"/>
+          <div class="field-error" id="err-supplier">Please select an option</div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Loan Details -->
+      <div class="form-step" id="step3">
+        <div class="form-card fade-in">
+          <div class="fc-head">
+            <div class="fc-icon blue">💰</div>
+            <div>
+              <div class="fc-title">Loan Requirement</div>
+              <div class="fc-sub">Tell us what you need</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Loan Amount Required</label>
+            <div class="rupee-input-wrap">
+              <span class="rupee-prefix">₹</span>
+              <input class="field-input" id="cl-amount" type="number" placeholder="e.g. 75000"/>
+            </div>
+            <div class="field-hint">₹10,000 – ₹5,00,000 · No collateral needed</div>
+            <div class="field-error" id="err-amount">Enter loan amount</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Purpose of Loan</label>
+            <select class="field-select" id="cl-purpose">
+              <option value="">Select purpose</option>
+              <option>Stock / Inventory purchase</option>
+              <option>Equipment / Machinery</option>
+              <option>Shop renovation / expansion</option>
+              <option>Working capital</option>
+              <option>Emergency business expense</option>
+              <option>Digital payment setup</option>
+            </select>
+            <div class="field-error" id="err-purpose">Select loan purpose</div>
+          </div>
+        </div>
+
+        <div class="form-card fade-in" style="background:linear-gradient(135deg,#F0F9FF,#E8F6FF);border-color:rgba(0,185,241,.2)">
+          <div style="font-size:.75rem;font-weight:700;color:var(--paytm-dark);margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem">
+            <span>🤖</span> How we score you
+          </div>
+          <div style="font-size:.72rem;color:var(--text-body);line-height:1.7">
+            Our ML engine runs <strong>XGBoost + LightGBM</strong> on your 5 alternative data signals — no CIBIL score, no ITR. SHAP explainability shows <em>exactly</em> why you got your score.
+          </div>
+          <div class="tech-pill-grid" style="margin-top:.75rem;margin-bottom:0">
+            <span class="tech-pill">XGBoost</span>
+            <span class="tech-pill">LightGBM</span>
+            <span class="tech-pill">SHAP</span>
+            <span class="tech-pill">AUC 0.626</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-screen" id="loadingScreen" style="display:none">
+      <div class="loading-orb">🤖</div>
+      <div>
+        <div class="loading-title">Scoring your business…</div>
+        <div class="loading-msg" id="loadingMsg">Initialising ML pipeline</div>
+      </div>
+      <div class="loading-progress">
+        <div class="loading-progress-fill" id="loadingBar"></div>
+      </div>
+      <div class="loading-steps">
+        <div class="ls-step" id="lstep0"><div class="ls-check">1</div> Extracting 5 alternative signals</div>
+        <div class="ls-step" id="lstep1"><div class="ls-check">2</div> Running XGBoost + LightGBM</div>
+        <div class="ls-step" id="lstep2"><div class="ls-check">3</div> Computing SHAP values</div>
+        <div class="ls-step" id="lstep3"><div class="ls-check">4</div> Matching lender ecosystem</div>
+        <div class="ls-step" id="lstep4"><div class="ls-check">5</div> Generating credit report</div>
+      </div>
+    </div>
+
+    <!-- Result Screen (inside checker) -->
+    <div class="result-screen" id="resultScreen" style="display:none">
+      <!-- rendered by JS -->
+    </div>
+
+    <!-- Step Nav -->
+    <div class="step-nav" id="stepNav">
+      <button class="btn-back-step" id="backStepBtn" onclick="prevStep()" style="display:none">← Back</button>
+      <button class="btn-next" id="nextStepBtn" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: HOW IT WORKS ══ -->
+  <div class="screen" id="screen-hiw">
+    <div class="hiw-header">
+      <div class="hiw-title">How MicroLend Works</div>
+      <div class="hiw-sub">ML-powered credit scoring for India's 63M last-mile businesses</div>
+    </div>
+    <div class="hiw-body" style="overflow-y:auto;flex:1">
+
+      <!-- Problem stat -->
+      <div class="hiw-problem-card">
+        <div class="hiw-pc-label">The Credit Gap</div>
+        <div class="hiw-pc-stat">63M+</div>
+        <div class="hiw-pc-desc">Kirana stores, medical shops, tea stalls — creditworthy businesses paying 40–60% interest to moneylenders because banks ask for ITR they don't have.</div>
+      </div>
+
+      <div class="hiw-stats-row">
+        <div class="hiw-stat-card">
+          <div class="hsc-num" style="color:var(--danger)">14 days</div>
+          <div class="hsc-label">Manual underwriting time — banks</div>
+        </div>
+        <div class="hiw-stat-card">
+          <div class="hsc-num" style="color:var(--paytm-green)">&lt; 3 min</div>
+          <div class="hsc-label">MicroLend ML decision time</div>
+        </div>
+        <div class="hiw-stat-card">
+          <div class="hsc-num" style="color:var(--paytm-blue)">0.626</div>
+          <div class="hsc-label">AUC-ROC on holdout test data</div>
+        </div>
+        <div class="hiw-stat-card">
+          <div class="hsc-num" style="color:var(--paytm-amber)">₹18k+</div>
+          <div class="hsc-label">Annual savings per borrower vs moneylenders</div>
+        </div>
+      </div>
+
+      <div class="section-eyebrow" style="margin-bottom:.75rem">ML Pipeline</div>
+      <div class="hiw-pipeline">
+        <div class="pipeline-step-card">
+          <div class="psc-num">1</div>
+          <div>
+            <div class="psc-title">Alternative Data Signals</div>
+            <div class="psc-desc">UPI/POS sales, utility bill history, supplier order frequency, business vintage, and loan-to-revenue ratio — data every shopkeeper already generates daily.</div>
+            <span class="psc-tag">5 core signals</span>
+          </div>
+        </div>
+        <div class="pipeline-step-card">
+          <div class="psc-num">2</div>
+          <div>
+            <div class="psc-title">ML Scoring Engine</div>
+            <div class="psc-desc">Ensemble of XGBoost and LightGBM models trained on repayment outcomes from similar borrowers. Generates a 0–100 credit score in milliseconds.</div>
+            <span class="psc-tag">XGBoost · AUC 0.626</span>
+          </div>
+        </div>
+        <div class="pipeline-step-card">
+          <div class="psc-num">3</div>
+          <div>
+            <div class="psc-title">SHAP Explainability</div>
+            <div class="psc-desc">SHapley Additive exPlanations break down exactly which factors drove the score up or down. Lenders trust it. RBI auditors accept it. Borrowers understand it.</div>
+            <span class="psc-tag">Explainable AI · RBI-compliant</span>
+          </div>
+        </div>
+        <div class="pipeline-step-card">
+          <div class="psc-num">4</div>
+          <div>
+            <div class="psc-title">Continuous Learning</div>
+            <div class="psc-desc">Every repayment outcome feeds back to retrain the model. The system gets smarter and fairer with every loan disbursed.</div>
+            <span class="psc-tag">Feedback loop · Drift monitoring</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-eyebrow" style="margin-bottom:.75rem">Lending Models</div>
+      <div class="models-grid">
+        <div class="model-card">
+          <div class="mc-icon">👩‍👩‍👧</div>
+          <div>
+            <span class="mc-tag">SHG</span>
+            <div class="mc-name">Self Help Groups</div>
+            <div class="mc-desc">Groups of 10–20 women scored collectively using savings regularity and internal repayment history.</div>
+            <span class="mc-example">Dharwad group of 15 → Score 79 → ₹2L approved</span>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="mc-icon">🤝</div>
+          <div>
+            <span class="mc-tag">JLG</span>
+            <div class="mc-name">Joint Liability Groups</div>
+            <div class="mc-desc">4–10 borrowers scored individually + group-risk aggregation using social trust signals.</div>
+            <span class="mc-example">Belagavi 5-member cluster → Avg 74 → ₹50K each</span>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="mc-icon">🔗</div>
+          <div>
+            <span class="mc-tag">Supply Chain</span>
+            <div class="mc-name">Supply Chain Finance</div>
+            <div class="mc-desc">HUL / ITC / Dabur distributor data → invoice financing without a single paper document.</div>
+            <span class="mc-example">Retailer scored 86 → Invoice financing unlocked</span>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="mc-icon">⚡</div>
+          <div>
+            <span class="mc-tag">Embedded</span>
+            <div class="mc-name">Embedded Finance API</div>
+            <div class="mc-desc">White-label scoring inside Khatabook, OkCredit, or any platform that touches retailer data.</div>
+            <span class="mc-example">₹1L pre-approved shown in-app → 1-tap apply</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1rem"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: PROFILE / ML INSIGHTS ══ -->
+  <div class="screen" id="screen-profile">
+    <div class="profile-header">
+      <div class="ph-avatar">🤖</div>
+      <div class="ph-name">ML Model Insights</div>
+      <div class="ph-sub">Technical stack & model performance</div>
+    </div>
+    <div class="profile-body" style="overflow-y:auto;flex:1">
+      <div style="background:var(--white);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);overflow:hidden;margin-bottom:.9rem;margin-top:-.75rem;border:1px solid var(--border)">
+        <div style="padding:1.25rem">
+
+          <div class="ml-explainer-card" style="box-shadow:none;border:none;padding:0;margin-bottom:1rem">
+            <div class="mec-title"><div class="mec-title-icon">🧠</div>Model Architecture</div>
+            <div class="tech-pill-grid">
+              <span class="tech-pill">Python 3.11</span>
+              <span class="tech-pill">XGBoost</span>
+              <span class="tech-pill">LightGBM</span>
+              <span class="tech-pill">SHAP</span>
+              <span class="tech-pill">Scikit-learn</span>
+              <span class="tech-pill">FastAPI</span>
+              <span class="tech-pill">Streamlit</span>
+              <span class="tech-pill">Pandas</span>
+              <span class="tech-pill">Isolation Forest</span>
+              <span class="tech-pill">AWS / GCP</span>
+            </div>
+          </div>
+
+          <div style="height:1px;background:var(--grey-light);margin-bottom:1rem"></div>
+
+          <div class="mec-title"><div class="mec-title-icon">📈</div>Model Performance</div>
+          <div>
+            <div class="metric-row">
+              <span class="mr-label">AUC-ROC (holdout)</span>
+              <span class="mr-val highlight">0.626</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Accuracy @ threshold 0.5</span>
+              <span class="mr-val">71.4%</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Training rows</span>
+              <span class="mr-val">15,000</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Inference latency</span>
+              <span class="mr-val highlight">187 ms</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Retraining cadence</span>
+              <span class="mr-val">Monthly</span>
+            </div>
+          </div>
+
+          <div style="height:1px;background:var(--grey-light);margin:1rem 0"></div>
+
+          <div class="mec-title"><div class="mec-title-icon">📊</div>Feature Importance (SHAP)</div>
+          <div>
+            <div class="metric-row">
+              <span class="mr-label">Utility Bill History</span>
+              <span class="mr-val" style="color:var(--paytm-green)">22% weight</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Supplier Repayment</span>
+              <span class="mr-val" style="color:var(--paytm-green)">20% weight</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Daily UPI Sales</span>
+              <span class="mr-val" style="color:var(--paytm-blue)">18% weight</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Business Vintage</span>
+              <span class="mr-val" style="color:var(--paytm-blue)">15% weight</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">Loan-to-Revenue Ratio</span>
+              <span class="mr-val" style="color:var(--paytm-amber)">15% weight</span>
+            </div>
+            <div class="metric-row">
+              <span class="mr-label">City Tier & Biz Type</span>
+              <span class="mr-val">10% weight</span>
+            </div>
+          </div>
+
+          <div style="height:1px;background:var(--grey-light);margin:1rem 0"></div>
+
+          <div class="mec-title"><div class="mec-title-icon">🏦</div>Lending Ecosystem</div>
+          <div>
+            <div class="metric-row"><span class="mr-label">Bandhan Bank SFB</span><span class="mr-val">10.9% p.a.</span></div>
+            <div class="metric-row"><span class="mr-label">Ujjivan SFB</span><span class="mr-val">12.0% p.a.</span></div>
+            <div class="metric-row"><span class="mr-label">Lendingkart NBFC</span><span class="mr-val">16.0% p.a.</span></div>
+            <div class="metric-row"><span class="mr-label">Arohan MFI</span><span class="mr-val">20.0% p.a.</span></div>
+            <div class="metric-row"><span class="mr-label">Mudra Kishore (Govt)</span><span class="mr-val">10.5% p.a.</span></div>
+            <div class="metric-row"><span class="mr-label">PM SVANidhi (Govt)</span><span class="mr-val">7.0% p.a.</span></div>
+          </div>
+
+          <div style="height:1px;background:var(--grey-light);margin:1rem 0"></div>
+
+          <div style="background:linear-gradient(135deg,#001840,#003B8E);border-radius:var(--r-md);padding:1rem;font-family:monospace;font-size:.7rem;color:#6FFF9A;line-height:1.7">
+            <div style="color:rgba(255,255,255,.4);margin-bottom:.5rem"># MicroLend Scoring Engine</div>
+            <div><span style="color:#80BFFF">def</span> <span style="color:#FFD580">score_business</span>(biz_id):</div>
+            <div style="padding-left:1rem">feats = pipeline.extract(</div>
+            <div style="padding-left:2rem">upi=get_upi_history(biz_id),</div>
+            <div style="padding-left:2rem">bills=get_utility_bills(biz_id),</div>
+            <div style="padding-left:2rem">supplier=get_orders(biz_id)</div>
+            <div style="padding-left:1rem">)</div>
+            <div style="padding-left:1rem">score = model.predict_proba(feats)[1]</div>
+            <div style="padding-left:1rem">shap_vals = explainer.shap_values(feats)</div>
+            <div style="padding-left:1rem"><span style="color:#80BFFF">return</span> {</div>
+            <div style="padding-left:2rem"><span style="color:#FFD580">"score"</span>: round(score*100, 1),</div>
+            <div style="padding-left:2rem"><span style="color:#FFD580">"shap"</span>: top_shap(shap_vals),</div>
+            <div style="padding-left:2rem"><span style="color:#FFD580">"latency_ms"</span>: 187</div>
+            <div style="padding-left:1rem">}</div>
+          </div>
+
+        </div>
+      </div>
+      <div style="height:1rem"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: HISTORY ══ -->
+  <div class="screen" id="screen-history">
+    <div class="history-header">
+      <div class="history-header-title">My Applications</div>
+      <div class="history-header-sub">Last 10 scored applications · saved to database</div>
+    </div>
+    <div class="history-body" id="historyBody">
+      <div class="hist-loading" id="histLoading">Loading applications…</div>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <div class="bottom-nav" id="bottomNav">
+    <div class="nav-item active" id="nav-home" onclick="switchNav('home')">
+      <div class="nav-icon">🏠</div>
+      <div>Home</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="nav-item" id="nav-checker" onclick="showChecker()">
+      <div class="nav-icon">⚡</div>
+      <div>Check</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="nav-item" id="nav-history" onclick="switchNav('history')">
+      <div class="nav-icon">📋</div>
+      <div>History</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="nav-item" id="nav-hiw" onclick="switchNav('hiw')">
+      <div class="nav-icon">📖</div>
+      <div>How It Works</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="nav-item" id="nav-profile" onclick="switchNav('profile')">
+      <div class="nav-icon">🤖</div>
+      <div>ML Insights</div>
+      <div class="nav-indicator"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── STATE ── */
+let currentStep = 1;
+const totalSteps = 3;
+let currentScreen = 'home';
+
+/* ── SCROLL TO OFFERS ── */
+function scrollToOffers() {
+  switchNav('home');
+  setTimeout(() => {
+    const el = document.querySelector('.offers-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
+}
+
+/* ── NAV ── */
+function switchNav(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (id === 'checker') {
+    document.getElementById('screen-checker').classList.add('active');
+    document.getElementById('nav-checker').classList.add('active');
+  } else {
+    document.getElementById('screen-' + id).classList.add('active');
+    document.getElementById('nav-' + id)?.classList.add('active');
+  }
+  currentScreen = id;
+  document.getElementById('bottomNav').style.display = 'flex';
+  if (id === 'history') loadHistory();
+  if (id === 'home') setTimeout(animateHome, 200);
+}
+
+function showChecker() {
+  // Reset checker state
+  currentStep = 1;
+  resetCheckerUI();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-checker').classList.add('active');
+  document.getElementById('nav-checker').classList.add('active');
+  document.getElementById('bottomNav').style.display = 'flex';
+}
+
+function backFromChecker() {
+  switchNav('home');
+}
+
+/* ── PILL SELECTION ── */
+function selectPill(el, groupId, hiddenId) {
+  document.querySelectorAll('#' + groupId + ' .pill-option').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById(hiddenId).value = el.dataset.val;
+  // hide error
+  const err = document.getElementById('err-' + hiddenId.replace('cl-',''));
+  if (err) { err.style.display = 'none'; el.querySelector('.field-input, select')?.classList.remove('error'); }
+}
+
+/* ── PROGRESS ── */
+function updateProgress(step) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('ps' + i);
+    el.classList.remove('done','active');
+    if (i < step) el.classList.add('done');
+    else if (i === step) el.classList.add('active');
+  }
+  const labels = ['Step 1 of 3 — Business Info', 'Step 2 of 3 — Payment History', 'Step 3 of 3 — Loan Details'];
+  document.getElementById('progressLabel').textContent = labels[step - 1];
+}
+
+/* ── STEP NAVIGATION ── */
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  if (currentStep < totalSteps) {
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep++;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress(currentStep);
+    document.getElementById('backStepBtn').style.display = 'block';
+    if (currentStep === totalSteps) document.getElementById('nextStepBtn').textContent = '⚡ Analyse Now';
+    document.getElementById('checkerBody').scrollTop = 0;
+  } else {
+    runChecker();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep--;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress(currentStep);
+    if (currentStep === 1) document.getElementById('backStepBtn').style.display = 'none';
+    document.getElementById('nextStepBtn').textContent = 'Continue →';
+  }
+}
+
+/* ── VALIDATION ── */
+function validateStep(step) {
+  let ok = true;
+  function fieldErr(id, errId) {
+    const el = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (!el.value || el.value.trim() === '') {
+      el.classList.add('error');
+      if (err) err.style.display = 'block';
+      ok = false;
+    } else {
+      el.classList.remove('error');
+      if (err) err.style.display = 'none';
+    }
+  }
+  if (step === 1) {
+    fieldErr('cl-name','err-name');
+    fieldErr('cl-biztype','err-biztype');
+    fieldErr('cl-city','err-city');
+    fieldErr('cl-age','err-age');
+    fieldErr('cl-upi','err-upi');
+  } else if (step === 2) {
+    fieldErr('cl-bills','err-bills');
+    fieldErr('cl-supplier','err-supplier');
+  } else if (step === 3) {
+    fieldErr('cl-amount','err-amount');
+    fieldErr('cl-purpose','err-purpose');
+  }
+  return ok;
+}
+
+/* ── RESET ── */
+function resetCheckerUI() {
+  currentStep = 1;
+  document.querySelectorAll('.form-step').forEach((s,i) => { s.classList.toggle('active', i === 0); });
+  updateProgress(1);
+  document.getElementById('backStepBtn').style.display = 'none';
+  document.getElementById('nextStepBtn').textContent = 'Continue →';
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('checkerBody').style.display = 'block';
+  document.getElementById('stepNav').style.display = 'flex';
+  document.getElementById('checkerBody').scrollTop = 0;
+
+  // Clear all form fields so the next applicant starts with a blank form
+  ['cl-name','cl-biztype','cl-city','cl-age','cl-upi','cl-bills','cl-supplier','cl-amount','cl-purpose']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+}
+
+/* ── API CONFIG ── */
+const API_URL = 'http://localhost:8001'; // Change this if backend runs elsewhere
+
+/* ── ML SCORER (now calls FastAPI backend) ── */
+async function runChecker() {
+  const name     = document.getElementById('cl-name').value.trim();
+  const biztype  = document.getElementById('cl-biztype').value;
+  const city     = document.getElementById('cl-city').value.trim();
+  const age      = parseFloat(document.getElementById('cl-age').value);
+  const upi      = parseFloat(document.getElementById('cl-upi').value);
+  const bills    = document.getElementById('cl-bills').value;
+  const supplier = document.getElementById('cl-supplier').value;
+  const amount   = parseFloat(document.getElementById('cl-amount').value);
+  const purpose  = document.getElementById('cl-purpose').value;
+
+  // Show loading
+  document.getElementById('checkerBody').style.display = 'none';
+  document.getElementById('stepNav').style.display = 'none';
+  document.getElementById('loadingScreen').style.display = 'flex';
+  document.getElementById('resultScreen').style.display = 'none';
+
+  // Animate loading steps (runs in parallel with fetch)
+  const steps = ['lstep0','lstep1','lstep2','lstep3','lstep4'];
+  const msgs = ['Extracting 5 alternative signals…','Running XGBoost + LightGBM ensemble…','Computing SHAP feature values…','Matching lender ecosystem…','Finalising credit report…'];
+  const progressPcts = [20, 40, 60, 80, 100];
+  let si = 0;
+
+  steps.forEach(id => {
+    document.getElementById(id).className = 'ls-step';
+    document.getElementById(id).querySelector('.ls-check').textContent = id.replace('lstep','').replace(/\D/,'') + '';
+  });
+  document.getElementById(steps[0]).classList.add('active-step');
+
+  const tick = setInterval(() => {
+    if (si < steps.length) {
+      if (si > 0) {
+        document.getElementById(steps[si-1]).classList.remove('active-step');
+        document.getElementById(steps[si-1]).classList.add('done');
+        document.getElementById(steps[si-1]).querySelector('.ls-check').textContent = '✓';
+      }
+      document.getElementById(steps[si]).classList.add('active-step');
+      document.getElementById('loadingMsg').textContent = msgs[si] || '';
+      document.getElementById('loadingBar').style.width = progressPcts[si] + '%';
+      si++;
+    }
+  }, 700);
+
+  // ── Call FastAPI backend ──
+  let result;
+  const minDisplayTime = new Promise(res => setTimeout(res, 3800)); // keep animation smooth
+
+  try {
+    const [apiResp] = await Promise.all([
+      fetch(`${API_URL}/api/score`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, biztype, city, age, upi, bills, supplier, amount, purpose })
+      }),
+      minDisplayTime
+    ]);
+
+    if (!apiResp.ok) {
+      const err = await apiResp.json().catch(() => ({}));
+      throw new Error(err.detail || `Server error ${apiResp.status}`);
+    }
+    result = await apiResp.json();
+  } catch (err) {
+    clearInterval(tick);
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('checkerBody').style.display = 'none';
+    document.getElementById('stepNav').style.display = 'none';
+    document.getElementById('resultScreen').style.display = 'block';
+    document.getElementById('resultScreen').innerHTML = `
+      <div class="result-header-bar">
+        <div class="rhb-orb"></div>
+        <button class="rhb-back" onclick="resetCheckerUI()">← Try Again</button>
+        <div class="rhb-title">Unable to Score</div>
+        <div class="rhb-sub">Backend connection failed</div>
+      </div>
+      <div class="result-body">
+        <div style="background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,31,86,.12);padding:1.5rem;margin-bottom:.9rem;text-align:center">
+          <div style="font-size:2.5rem;margin-bottom:.75rem">📡</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--text-dark);margin-bottom:.5rem">Backend Not Reachable</div>
+          <div style="font-size:.8rem;color:var(--text-body);line-height:1.7;margin-bottom:1.25rem">This app requires a local ML backend running on the presenter's laptop. It cannot be used independently from a mobile device or external network.</div>
+          <div style="background:linear-gradient(135deg,#F0F9FF,#E4F4FF);border:1px solid rgba(0,185,241,.2);border-radius:12px;padding:1rem;text-align:left;margin-bottom:1rem">
+            <div style="font-size:.65rem;font-weight:700;color:var(--paytm-dark);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem">ℹ️ For the Presenter</div>
+            <div style="font-size:.75rem;color:var(--text-body);line-height:1.6">Start the backend on your laptop:<br/><code style="background:rgba(0,0,0,.07);padding:.2rem .5rem;border-radius:4px;font-size:.7rem;display:inline-block;margin-top:.35rem">uvicorn main:app --reload --port 8001</code></div>
+          </div>
+          <button class="es-btn" style="width:100%;margin-top:0" onclick="resetCheckerUI()">← Go Back</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  clearInterval(tick);
+  steps.forEach(id => {
+    document.getElementById(id).classList.remove('active-step');
+    document.getElementById(id).classList.add('done');
+    document.getElementById(id).querySelector('.ls-check').textContent = '✓';
+  });
+
+  // Map backend field names to what renderResult expects
+  renderResult({
+    creditScore:    result.creditScore,
+    riskBand:       result.riskBand,
+    verdict:        result.verdict,
+    approvedAmount: result.approvedAmount,
+    verdictReason:  result.verdictReason,
+    factors:        result.factors,
+    lenders:        result.lenders,
+    tip:            result.tip,
+    applicationId:  result.id,
+  }, name, biztype, city, amount);
+}
+
+function renderResult(r, name, biztype, city, requestedAmt) {
+  const scoreColor = r.creditScore >= 70 ? 'var(--paytm-green)' : r.creditScore >= 45 ? 'var(--warn)' : 'var(--danger)';
+  const verdictClass = r.verdict === 'APPROVED' ? 'approved' : r.verdict === 'CONDITIONAL' ? 'conditional' : 'declined';
+  const verdictIcon = r.verdict === 'APPROVED' ? '✅' : r.verdict === 'CONDITIONAL' ? '⚠️' : '❌';
+  const verdictLabel = r.verdict === 'APPROVED' ? 'Loan Approved!' : r.verdict === 'CONDITIONAL' ? 'Conditionally Eligible' : 'Not Eligible Right Now';
+
+  const factorsHTML = r.factors.map(f => `
+    <div class="factor-row ${f.weight}">
+      <div class="factor-top">
+        <span class="factor-name">${f.label}</span>
+        <span class="factor-score-badge">${f.score}/100</span>
+      </div>
+      <div class="factor-bar-wrap">
+        <div class="factor-bar-fill" style="width:0%" data-w="${f.score}"></div>
+      </div>
+    </div>`).join('');
+
+  const lendersHTML = r.lenders.map(l => `
+    <div class="lender-item">
+      <div class="li-logo">${l.emoji}</div>
+      <div class="li-info">
+        <div class="li-name">${l.name}</div>
+        <div class="li-type">${l.type}</div>
+      </div>
+      <div class="li-right">
+        <div class="li-rate">${l.rate}</div>
+        <div class="li-max">Up to ₹${l.max.toLocaleString('en-IN')}</div>
+      </div>
+    </div>`).join('');
+
+  const amountSection = r.approvedAmount > 0 ? `
+    <div class="amount-card">
+      <div>
+        <div class="ac-label">Approved Amount</div>
+        <div class="ac-amount">₹${r.approvedAmount.toLocaleString('en-IN')}</div>
+        ${r.approvedAmount < requestedAmt ? `<div class="ac-note">₹${requestedAmt.toLocaleString('en-IN')} requested — partial approval</div>` : ''}
+      </div>
+      <button class="ac-apply-btn">Apply →</button>
+    </div>
+    <div class="emi-card">
+      <div class="emi-title">EMI Calculator</div>
+      <div class="emi-row">
+        <div class="emi-row-label">Tenure</div>
+        <input class="emi-slider" type="range" id="emiTenure" min="3" max="36" value="12" oninput="calcEMI(${r.approvedAmount})"/>
+        <div class="emi-val" id="emiTenureVal">12 mo</div>
+      </div>
+      <div class="emi-row">
+        <div class="emi-row-label">Interest rate</div>
+        <input class="emi-slider" type="range" id="emiRate" min="8" max="24" value="${r.lenders && r.lenders[0] ? parseFloat(r.lenders[0].rate) : 16}" step="0.5" oninput="calcEMI(${r.approvedAmount})"/>
+        <div class="emi-val" id="emiRateVal">${r.lenders && r.lenders[0] ? r.lenders[0].rate : '16.0%'}</div>
+      </div>
+      <div class="emi-result-grid">
+        <div class="emi-stat">
+          <div class="emi-stat-num" id="emiMonthly">—</div>
+          <div class="emi-stat-label">Monthly EMI</div>
+        </div>
+        <div class="emi-stat">
+          <div class="emi-stat-num" id="emiTotal">—</div>
+          <div class="emi-stat-label">Total Payable</div>
+        </div>
+        <div class="emi-stat">
+          <div class="emi-stat-num" id="emiInterest">—</div>
+          <div class="emi-stat-label">Total Interest</div>
+        </div>
+      </div>
+    </div>` : '';
+
+  const tipHTML = r.tip ? `
+    <div class="tip-card">
+      <div class="tip-icon">💡</div>
+      <div>
+        <div class="tip-label">How to Improve</div>
+        <div class="tip-text">${r.tip}</div>
+      </div>
+    </div>` : '';
+
+  const lendersSection = r.lenders.length > 0 ? `
+    <div class="lenders-card">
+      <div class="fc-section-title">Recommended Lenders</div>
+      ${lendersHTML}
+    </div>` : '';
+
+  document.getElementById('resultScreen').innerHTML = `
+    <div class="result-header-bar">
+      <div class="rhb-orb"></div>
+      <button class="rhb-back" onclick="resetCheckerUI()">← New Check</button>
+      <div class="rhb-title">Credit Score Report</div>
+      <div class="rhb-sub">AI-powered · SHAP-explained · ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+    </div>
+
+    <div class="result-body">
+      <div class="result-score-card">
+        <div class="rsc-top">
+          <div class="rsc-score-circle" style="border-color:${scoreColor}40">
+            <div class="rsc-score-num" id="resultScoreNum" style="color:${scoreColor}">0</div>
+            <div class="rsc-score-sub">/ 100</div>
+          </div>
+          <div class="rsc-info">
+            <div class="rsc-name">${name}</div>
+            <div class="rsc-meta">${biztype} · ${city}</div>
+            <div style="margin-top:.5rem;display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:.25rem .65rem;font-size:.65rem;font-weight:700;color:rgba(255,255,255,.7)">${r.riskBand} RISK</div>
+          </div>
+        </div>
+        <div class="verdict-banner ${verdictClass}">
+          <div class="vb-icon">${verdictIcon}</div>
+          <div>
+            <div class="vb-title">${verdictLabel}</div>
+            <div class="vb-body">${r.verdictReason}</div>
+          </div>
+        </div>
+      </div>
+
+      ${amountSection}
+
+      <div class="factors-card">
+        <div class="fc-section-title">SHAP Scoring Factors</div>
+        ${factorsHTML}
+      </div>
+
+      ${lendersSection}
+      ${tipHTML}
+
+      <div class="disclaimer">* MicroLend is a demonstration ML scoring engine. Scores are AI-generated for educational purposes and do not constitute a formal credit decision.${r.applicationId ? ` · Application #${r.applicationId} saved.` : ''}</div>
+    </div>
+  `;
+
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'block';
+  document.getElementById('checkerBody').style.display = 'none';
+  document.getElementById('stepNav').style.display = 'none';
+
+  // Animate score number
+  const targetScore = r.creditScore;
+  const numEl = document.getElementById('resultScoreNum');
+  const dur = 1400;
+  const start = performance.now();
+  function tickNum(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    numEl.textContent = Math.round(ease * targetScore);
+    if (t < 1) requestAnimationFrame(tickNum);
+  }
+  requestAnimationFrame(tickNum);
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.factor-bar-fill').forEach(b => {
+      b.style.width = (b.dataset.w || 0) + '%';
+    });
+  }, 200);
+
+  // Init EMI calculator
+  if (r.approvedAmount > 0) initEMI(r.approvedAmount);
+}
+
+/* ── EMI CALCULATOR ── */
+function calcEMI(principal) {
+  const tenureEl = document.getElementById('emiTenure');
+  const rateEl   = document.getElementById('emiRate');
+  if (!tenureEl || !rateEl) return;
+  const n = parseInt(tenureEl.value);
+  const r = parseFloat(rateEl.value) / 100 / 12;
+  document.getElementById('emiTenureVal').textContent = n + ' mo';
+  document.getElementById('emiRateVal').textContent   = parseFloat(rateEl.value).toFixed(1) + '%';
+  const emi   = r === 0 ? principal / n : principal * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const total = emi * n;
+  const interest = total - principal;
+  function fmt(v) {
+    if (v >= 100000) return '₹' + (v/100000).toFixed(1) + 'L';
+    if (v >= 1000)   return '₹' + Math.round(v/1000) + 'K';
+    return '₹' + Math.round(v);
+  }
+  document.getElementById('emiMonthly').textContent  = fmt(emi);
+  document.getElementById('emiTotal').textContent    = fmt(total);
+  document.getElementById('emiInterest').textContent = fmt(interest);
+}
+// trigger once after result renders
+function initEMI(principal) { setTimeout(() => calcEMI(principal), 100); }
+
+/* ── HISTORY SCREEN ── */
+async function loadHistory() {
+  const body = document.getElementById('historyBody');
+  body.innerHTML = '<div class="hist-loading">Loading applications…</div>';
+  try {
+    const resp = await fetch(`${API_URL}/api/applications`);
+    if (!resp.ok) throw new Error('Backend unreachable');
+    const data = await resp.json();
+    const apps = (data.applications || data || []).slice(0, 10).reverse();
+    if (!apps.length) {
+      body.innerHTML = `
+        <div class="empty-state">
+          <div class="es-icon">📋</div>
+          <div class="es-title">No Applications Yet</div>
+          <div class="es-sub">You haven't checked your loan eligibility yet. Submit your details to get your credit score — it only takes 2 minutes.</div>
+          <button class="es-btn" onclick="showChecker()">Check Eligibility ⚡</button>
+        </div>`;
+      return;
+    }
+    body.innerHTML = apps.map(a => {
+      const score = a.credit_score || a.creditScore || 0;
+      const band  = score >= 70 ? 'good' : score >= 45 ? 'mid' : 'bad';
+      const v     = (a.verdict || '').toUpperCase();
+      const vClass = v === 'APPROVED' ? 'ap' : v === 'CONDITIONAL' ? 'co' : 'de';
+      const vLabel = v === 'APPROVED' ? 'Approved' : v === 'CONDITIONAL' ? 'Conditional' : 'Declined';
+      const amt   = a.approved_amount || a.approvedAmount || 0;
+      const date  = a.created_at ? new Date(a.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+      return `<div class="hist-card">
+        <div class="hist-score-badge ${band}">${score}<div class="hist-score-denom">/100</div></div>
+        <div class="hist-info">
+          <div class="hist-name">${a.name || 'Unknown'}</div>
+          <div class="hist-meta">${a.biztype || ''} · ${a.city || ''} · ${date}</div>
+        </div>
+        <div class="hist-right">
+          <div class="hist-verdict ${vClass}">${vLabel}</div>
+          ${amt ? `<div class="hist-amount">₹${parseInt(amt).toLocaleString('en-IN')}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="es-icon">📋</div>
+        <div class="es-title">No Applications Found</div>
+        <div class="es-sub">You haven't checked your loan eligibility yet. Submit your details to get your credit score — it only takes 2 minutes.</div>
+        <button class="es-btn" onclick="showChecker()">Check Eligibility ⚡</button>
+      </div>`;
+  }
+  }
+}
+
+/* ── HERO HOME ANIMATION ── */
+function animateHome() {
+  const el = document.getElementById('homeScore');
+  if (!el) return;
+  const target = 82;
+  const dur = 2000;
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / dur, 1);
+    el.textContent = Math.round((1 - Math.pow(1 - t, 3)) * target);
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  // Animate bars with slight delay
+  setTimeout(() => {
+    document.querySelectorAll('.shc-factor-fill').forEach(b => {
+      b.style.width = (b.dataset.w || 0) + '%';
+    });
+  }, 400);
+}
+window.addEventListener('load', () => setTimeout(animateHome, 600));
+
+/* ── INPUT CLEAR ERRORS ON TYPE ── */
+document.addEventListener('input', e => {
+  if (e.target.classList.contains('field-input') || e.target.classList.contains('field-select')) {
+    e.target.classList.remove('error');
+    const errId = 'err-' + e.target.id.replace('cl-','');
+    const err = document.getElementById(errId);
+    if (err) err.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
